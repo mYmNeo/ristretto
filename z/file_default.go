@@ -1,3 +1,4 @@
+//go:build !linux
 // +build !linux
 
 /*
@@ -18,7 +19,11 @@
 
 package z
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/sys/unix"
+)
 
 // Truncate would truncate the mmapped file to the given size. On Linux, we truncate
 // the underlying file and then call mremap, but on other systems, we unmap first,
@@ -34,6 +39,6 @@ func (m *MmapFile) Truncate(maxSz int64) error {
 		return fmt.Errorf("while truncate file: %s, error: %v\n", m.Fd.Name(), err)
 	}
 	var err error
-	m.Data, err = Mmap(m.Fd, true, maxSz) // Mmap up to max size.
+	m.Data, err = Mmap(m.Fd, true, maxSz, unix.MAP_POPULATE) // Mmap up to max size.
 	return err
 }

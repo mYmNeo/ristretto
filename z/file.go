@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
 )
 
 // MmapFile represents an mmapd file and includes both the buffer to the data
@@ -54,7 +55,7 @@ func OpenMmapFileUsing(fd *os.File, sz int, writable bool) (*MmapFile, error) {
 	}
 
 	// fmt.Printf("Mmaping file: %s with writable: %v filesize: %d\n", fd.Name(), writable, fileSize)
-	buf, err := Mmap(fd, writable, fileSize) // Mmap up to file size.
+	buf, err := Mmap(fd, writable, fileSize, unix.MAP_POPULATE) // Mmap up to file size.
 	if err != nil {
 		return nil, errors.Wrapf(err, "while mmapping %s with size: %d", fd.Name(), fileSize)
 	}
